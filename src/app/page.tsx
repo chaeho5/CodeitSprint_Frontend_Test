@@ -1,103 +1,93 @@
-import Image from "next/image";
+"use client"; // useState를 사용하기 위해 파일 최상단에 추가합니다.
+
+import { useState, useEffect, FormEvent } from "react"; // useState를 import 합니다.
+import Header from "../components/Header";
+import Input from "@/components/Input";
+import Button from "@/components/Button";
+import TodoListContainer from "@/components/TodoListContainer";
+import { Todo } from "@/types/todo"; // 정의한 타입을 import 합니다.
+import { fetchTodos, createTodo, updateTodo } from "@/lib/api";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // 1. 할 일 목록 데이터를 저장할 state
+  const [todos, setTodos] = useState<Todo[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  // 2. 입력창의 텍스트를 저장할 state
+  const [newTodoText, setNewTodoText] = useState("");
+
+  useEffect(() => {
+    const getTodos = async () => {
+      // 👇 fetchTodos는 이제 배열을 직접 반환합니다.
+      const todosFromServer = await fetchTodos();
+      // 👇 받아온 데이터가 배열인지 확인하고 상태를 업데이트합니다.
+      if (Array.isArray(todosFromServer)) {
+        setTodos(todosFromServer);
+      } else {
+        setTodos([]);
+      }
+    };
+    getTodos();
+  }, []);
+
+  // 3. 할 일 추가 함수
+  const handleAddTodo = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newTodoText.trim()) return;
+
+    try {
+      // 1. API를 호출하여 서버에 할 일을 생성합니다.
+      const newTodo = await createTodo(newTodoText);
+      // 2. 성공적으로 생성되면, 반환된 할 일을 현재 목록에 추가합니다.
+      setTodos([...todos, newTodo]);
+      setNewTodoText(""); // 입력창을 비웁니다.
+    } catch (error) {
+      console.error("Failed to add todo:", error);
+      alert("할 일 추가에 실패했습니다.");
+    }
+  };
+
+  // 4. 할 일 상태 변경 함수
+  const handleToggleTodo = async (id: number) => {
+    // 먼저 화면을 즉시 업데이트하여 사용자 경험을 좋게 합니다 (Optimistic Update).
+    const originalTodos = [...todos];
+    const updatedTodos = todos.map((todo) =>
+      todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
+    );
+    setTodos(updatedTodos);
+
+    try {
+      // 서버에 변경된 상태를 전송합니다.
+      const targetTodo = updatedTodos.find((todo) => todo.id === id);
+      if (targetTodo) {
+        await updateTodo(targetTodo.id, {
+          isCompleted: targetTodo.isCompleted,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to toggle todo:", error);
+      alert("상태 변경에 실패했습니다.");
+      // 에러 발생 시 원래 상태로 되돌립니다.
+      setTodos(originalTodos);
+    }
+  };
+  return (
+    <main className="min-h-screen w-full bg-slate-100">
+      <Header />
+      <div className="mx-auto max-w-screen-lg px-5">
+        <form
+          onSubmit={handleAddTodo}
+          className="mt-8 flex items-center justify-between gap-4"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <Input
+            placeholder="할 일을 입력해주세요"
+            value={newTodoText}
+            onChange={(e) => setNewTodoText(e.target.value)}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <Button type="submit" disabled={!newTodoText.trim()} />
+        </form>
+
+        <TodoListContainer todos={todos} onToggle={handleToggleTodo} />
+      </div>
+    </main>
   );
 }
