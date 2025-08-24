@@ -27,6 +27,9 @@ const nanumSquareNeo = localFont({
 export const metadata: Metadata = {
   title: "Do It - Todo List",
   description: "A simple todo list application",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
