@@ -39,12 +39,21 @@ export const updateTodo = async (
   id: number,
   updatedData: Partial<Todo>
 ): Promise<Todo> => {
+  // 전송할 데이터를 복사해서 새로운 payload 객체를 만듭니다.
+  const payload = { ...updatedData };
+
+  // 만약 imageUrl이 null이라면 (사용자가 이미지를 삭제했다면),
+  // API 명세에 맞게 빈 문자열("")로 값을 변경해줍니다.
+  if (payload.imageUrl === null) {
+    payload.imageUrl = "";
+  }
+
   const response = await fetch(`${API_BASE_URL}/${TENANT_ID}/items/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(updatedData),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {

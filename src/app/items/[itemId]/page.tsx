@@ -1,6 +1,8 @@
+// src/app/items/[itemId]/page.tsx
+
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, use } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { getTodoById, updateTodo, deleteTodo } from "@/lib/api";
@@ -11,12 +13,15 @@ import Memo from "@/components/img/Memo";
 import UpdateButton from "@/components/UpdateButton";
 import DeleteButton from "@/components/DeleteButton";
 
+// 1. props의 타입을 Promise로 감싸고, use 훅으로 풀어줍니다.
+export default function Page({ params: paramsPromise }: { params: Promise<{ itemId: string }> }) {
+  const params = use(paramsPromise);
+  const { itemId } = params; // 이제 itemId를 안전하게 사용할 수 있습니다.
 
-export default function Page({ params }: { params: { itemId: string }}) {
   const router = useRouter();
   const [initialTodo, setInitialTodo] = useState<Todo | null>(null);
 
-  // 👇 1. 폼 입력을 위한 state들을 추가합니다.
+  // 폼 입력을 위한 state들
   const [name, setName] = useState("");
   const [memo, setMemo] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
@@ -25,7 +30,8 @@ export default function Page({ params }: { params: { itemId: string }}) {
 
   useEffect(() => {
     const fetchTodo = async () => {
-      const todoData = await getTodoById(Number(params.itemId));
+      // 풀어준 itemId 값을 사용합니다.
+      const todoData = await getTodoById(Number(itemId));
       setInitialTodo(todoData);
       if (todoData) {
         setName(todoData.name);
@@ -35,9 +41,9 @@ export default function Page({ params }: { params: { itemId: string }}) {
       }
     };
     fetchTodo();
-  }, [params.itemId]);
+  }, [itemId]); // 의존성 배열에도 itemId를 넣어줍니다.
 
-  // 👇 2. 변경 여부를 감지하는 useEffect를 추가합니다.
+  // 변경 여부를 감지하는 useEffect
   useEffect(() => {
     if (!initialTodo) return;
     if (
@@ -52,25 +58,20 @@ export default function Page({ params }: { params: { itemId: string }}) {
     }
   }, [name, memo, isCompleted, imageUrl, initialTodo]);
 
-  // 👇 3. 수정/삭제/상태변경 함수를 추가/수정합니다.
+  // 수정 함수 (이미지 삭제 로직 수정 반영)
   const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
 
-    // 1. 서버에 보낼 데이터 객체를 만듭니다. (imageUrl은 아직 미포함)
+    // imageUrl을 항상 payload에 포함시켜 null 값도 서버로 전달되게 합니다.
     const payload: Partial<Todo> = {
       name,
       memo,
       isCompleted,
+      imageUrl,
     };
 
-    // 2. imageUrl에 값이 있을 경우에만 payload에 추가합니다.
-    if (imageUrl) {
-      payload.imageUrl = imageUrl;
-    }
-
     try {
-      // 3. 완성된 payload를 서버에 전송합니다.
-      await updateTodo(Number(params.itemId), payload);
+      await updateTodo(Number(itemId), payload);
       alert("수정이 완료되었습니다.");
       router.push("/");
     } catch (error) {
@@ -79,10 +80,11 @@ export default function Page({ params }: { params: { itemId: string }}) {
     }
   };
 
+  // 삭제 함수
   const handleDelete = async () => {
     if (confirm("정말로 이 할 일을 삭제하시겠습니까?")) {
       try {
-        await deleteTodo(Number(params.itemId));
+        await deleteTodo(Number(itemId));
         alert("삭제가 완료되었습니다.");
         router.push("/");
       } catch (error) {
@@ -92,6 +94,7 @@ export default function Page({ params }: { params: { itemId: string }}) {
     }
   };
 
+  // 상태 변경 함수
   const handleToggleStatus = () => {
     setIsCompleted(!isCompleted);
   };
@@ -108,7 +111,6 @@ export default function Page({ params }: { params: { itemId: string }}) {
 
       <main className="flex flex-1 items-center justify-center">
         <div className="h-[1020px] w-[1000px] bg-white p-8 shadow-lg">
-          {/* 👇 4. 폼과 버튼들을 렌더링합니다. */}
           <TodoItem
             id={initialTodo.id}
             name={name}
@@ -124,13 +126,11 @@ export default function Page({ params }: { params: { itemId: string }}) {
               <div className="md:w-[45%]">
                 <ImageUpload imageUrl={imageUrl} onImageUpload={setImageUrl} />
               </div>
-
-              {/* 👇 Memo를 감싸는 div를 추가하고 너비를 2/3로 지정합니다. */}
               <div className="md:w-[55%]">
                 <Memo value={memo} onChange={(e) => setMemo(e.target.value)} />
               </div>
             </div>
-            <div className="mt-8 flex justify-center md:justify-end gap-4">
+            <div className="mt-8 flex justify-center gap-4 md:justify-end">
               <UpdateButton
                 type="submit"
                 isActive={isModified}
