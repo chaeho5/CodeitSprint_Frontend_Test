@@ -11,11 +11,8 @@ import Memo from "@/components/img/Memo";
 import UpdateButton from "@/components/UpdateButton";
 import DeleteButton from "@/components/DeleteButton";
 
-interface TodoDetailPageProps {
-  params: { itemId: string };
-}
 
-export default function TodoDetailPage({ params }: TodoDetailPageProps) {
+export default function Page({ params }: { params: { itemId: string }}) {
   const router = useRouter();
   const [initialTodo, setInitialTodo] = useState<Todo | null>(null);
 
