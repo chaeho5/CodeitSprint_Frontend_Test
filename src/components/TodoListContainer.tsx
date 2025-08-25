@@ -30,7 +30,7 @@ export default function TodoListContainer({
   const doneMessage = "아직 다 한 일이 없어요.\n해야 할 일을 체크해보세요!";
 
   return (
-    <section className="mt-8 w-full grid grid-cols-1 gap-8 md:grid-cols-2">
+    <section className="mt-8 w-full grid grid-cols-1 gap-8 lg:grid-cols-2">
       {/* TO DO */}
       <div>
         <div className="mb-4 flex items-center gap-2">

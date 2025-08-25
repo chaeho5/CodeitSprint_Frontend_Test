@@ -158,11 +158,11 @@ export default function Page({
             onNameChange={setName}
           />
           <form onSubmit={handleUpdate} className="mt-8">
-            <div className="flex flex-col gap-8 md:flex-row">
-              <div className="md:w-[45%]">
+            <div className="flex flex-col gap-8 lg:flex-row">
+              <div className="lg:w-[45%]">
                 <ImageUpload imageUrl={imageUrl} onImageUpload={setImageUrl} />
               </div>
-              <div className="md:w-[55%]">
+              <div className="lg:w-[55%]">
                 <Memo value={memo} onChange={(e) => setMemo(e.target.value)} />
               </div>
             </div>
