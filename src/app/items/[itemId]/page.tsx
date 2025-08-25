@@ -166,7 +166,7 @@ export default function Page({
                 <Memo value={memo} onChange={(e) => setMemo(e.target.value)} />
               </div>
             </div>
-            <div className="mt-8 flex justify-center gap-4 md:justify-end">
+            <div className="mt-8 flex justify-center gap-4 lg:justify-end">
               <UpdateButton
                 type="submit"
                 isActive={isModified}
