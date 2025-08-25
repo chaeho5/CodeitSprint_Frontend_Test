@@ -1,3 +1,4 @@
+//모바일 사이즈에서 보이는 로고 - Do it 텍스트가 없는 버전 
 import { SVGProps } from "react";
 
 export default function LogoIcon(props: SVGProps<SVGSVGElement>) {

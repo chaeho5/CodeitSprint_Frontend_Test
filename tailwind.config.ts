@@ -1,3 +1,4 @@
+// 컬러 시스템
 import type { Config } from "tailwindcss";
 
 const config: Config = {

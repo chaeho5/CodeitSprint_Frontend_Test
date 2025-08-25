@@ -1,3 +1,4 @@
+// 삭제하기 버튼 
 import { ButtonHTMLAttributes } from "react";
 import XIcon from "./icons/XIcon";
 
@@ -16,10 +17,9 @@ export default function DeleteButton({
         disabled ? "opacity-50" : ""
       }`}
     >
-      {/* Shadow layer */}
+
       <div className="absolute left-1 top-1 h-[52px] w-[164px] rounded-[24px] border-2 border-slate-900 bg-slate-900 transition-all duration-300" />
 
-      {/* Main button */}
       <button
         type="button"
         className={`absolute left-0 top-0 h-[52px] w-[164px] rounded-[24px] border-2 border-slate-900 transition-colors ${

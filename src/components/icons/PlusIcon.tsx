@@ -1,3 +1,4 @@
+// 십자가 모양 플러스 아이콘
 import { SVGProps } from "react";
 
 export default function PlusIcon(props: SVGProps<SVGSVGElement>) {

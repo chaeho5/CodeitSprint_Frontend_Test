@@ -1,3 +1,4 @@
+// 수정 페이지에 이미지 업로드 박스 가운데에 있는 아이콘 이미지 
 import { SVGProps } from "react";
 
 export default function ImgIcon(props: SVGProps<SVGSVGElement>) {

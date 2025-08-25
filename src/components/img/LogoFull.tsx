@@ -1,3 +1,4 @@
+//Do it 텍스트가 같이 있는 로고
 import { SVGProps } from "react";
 
 export default function LogoFull(props: SVGProps<SVGSVGElement>) {

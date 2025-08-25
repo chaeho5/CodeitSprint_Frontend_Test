@@ -1,19 +1,25 @@
 import { ButtonHTMLAttributes } from "react";
 import CheckIcon from "./icons/CheckIcon";
 
+// UpdateButton 컴포넌트가 받을 props 타입을 정의함.
 interface UpdateButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string;
-  isActive?: boolean;
+  className?: string; // 추가적인 스타일링을 위한 클래스
+  isActive?: boolean; // 버튼의 활성화 여부, 색상 변경에 사용됨.
 }
 
+/**
+ * 수정 완료 기능을 위한 전용 버튼 컴포넌트입니다.
+ * 입체적인 그림자 효과와, 내용 수정 여부(isActive)에 따라 색상이 변경되는 기능이 있습니다.
+ */
 export default function UpdateButton({
   className = "",
   isActive = false,
   ...props
 }: UpdateButtonProps) {
+  /** isActive prop 값에 따라 버튼의 배경색을 결정합니다. */
   const bgColorClasses = isActive
-    ? "bg-lime-300 hover:bg-lime-400 active:bg-lime-500"
-    : "bg-slate-200 hover:bg-slate-300 active:bg-slate-400";
+    ? "bg-lime-300 hover:bg-lime-400 active:bg-lime-500" // 활성 상태 (수정된 내용 있을 때)
+    : "bg-slate-200 hover:bg-slate-300 active:bg-slate-400"; // 비활성 상태
   return (
     <div className="relative w-[168px] h-[56px] transition-all duration-300">
       {/* Shadow/offset layer */}
